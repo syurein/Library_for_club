@@ -10,21 +10,27 @@
     <h1>電工部蔵書サイト</h1>
     <table border="1">
       
-      <thead id="book_table">
+      <thead>
         <tr>
 
         <th>No.</th>
         <th>タイトル</th>
         <th>貸出中/利用可</th>
         <th>貸出者名</th>
+        <th>ボタン</th>
         </tr>
       </thead>
       <tbody id="book_table">
         
       </tbody>
     </table>
-    <button onclick="add_books()">push</button>
+    <button onclick="get_data()">push</button>
+    <input type='input' id="input_title">
+    <input type="button" value="send" onclick="return_books()">
     <script>
+    window.onload=()=>{
+      get_data();
+    }
     let count_num=0;
     class Book_Info{
       constructor(num,title,status,name){
@@ -35,19 +41,119 @@
       }
     }
     
-    function add_books(){
-      for (let i =0;i<10;i++){
-        let book=new Book_Info(i,'羊','O','hikari')
-        if(i%2==0){
-          book.status='×'
-        }
+    function add_books(books){
+      let counter=0;
+      if(books){
+        
+        let book;
+        let title=Array.from(Object.keys(books??{}))
+        console.log(books)
+        console.log(Object.keys(books))
         const tables=document.getElementById('book_table');
-        let table_chiled=document.createElement('tr');
-        table_chiled.innerHTML=`<td>${book.num}</td><td>${book.title}</td><td>${book.status}</td><td>${book.name}</td>`
-        tables.appendChild(table_chiled);
-        
-        
+        console.log(tables.childElementCount)
+       
+        while (tables.firstChild) {
+          tables.removeChild(tables.firstChild);
+        }
+                
+        while(title.length>counter){
+          book=books[title[counter]]
+          let table_chiled=document.createElement('tr');
+          table_chiled.innerHTML=`<td>${counter}</td><td>${title[counter]}</td><td>${function(){ if(book.status==0){return 'O'}else{return 'X'}}()}</td><td>${book.name}</td><td>${function(){if(book.status==0){return `<button onclick="borrow_books('${title[counter]}')">借りる</button>`}else{return 'X'}}()}</td>`
+          tables.appendChild(table_chiled);
+          counter++;
+          
+        }
+        counter=0
       }
+    }
+    function get_data(){
+      const xhr=new XMLHttpRequest();
+      let data;
+      xhr.open("GET","/get_data");
+      xhr.send();
+      xhr.responseType='json';
+      //onloadイベントをキャッチしてる
+      xhr.onload=()=>{
+        if (xhr.readyState==4&&xhr.status==200){
+          data=xhr.response;
+          //console.log(data)
+          add_books(data)
+        }else{
+          console.log(`Error:${xhr.status}`);
+        }
+      }
+    //クライアントの状態が4（DONE）で、ステータスコードが200（成功）であれば、
+    // コンソールにデータが記録されます。そうでない場合は、エラー状況を示すエラーメッセージが表示されます。
+      add_books(data)
+    }
+
+
+
+
+
+    function set_data(){
+      title=document.getElementById('input_title')
+      console.log(title.value)
+      status=1
+      const xhr=new XMLHttpRequest();
+      xhr.open('POST','./set_data');
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      const body =JSON.stringify({
+        title:`${title.value}`,
+        status:1
+      })
+      xhr.onload =()=>{
+         if (xhr.readyState == 4 && xhr.status == 200) {
+            console.log(JSON.parse(xhr.responseText));
+          } else {
+            console.log(`Error: ${xhr.status}`);
+          }
+      }
+      xhr.send(body)
+    }
+
+    function borrow_books(title){
+      
+      console.log(title)
+      status=1
+      const xhr=new XMLHttpRequest();
+      xhr.open('POST','./set_data');
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      const body =JSON.stringify({
+        title:`${title}`,
+        status:1
+      })
+      xhr.onload =()=>{
+         if (xhr.readyState == 4 && xhr.status == 200) {
+            console.log(JSON.parse(xhr.responseText));
+          } else {
+            console.log(`Error: ${xhr.status}`);
+          }
+      }
+      xhr.send(body)
+      
+      
+    }
+    function return_books(){
+      title=document.getElementById('input_title')
+      console.log(title.value)
+      status=1
+      const xhr=new XMLHttpRequest();
+      xhr.open('POST','./set_data');
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      const body =JSON.stringify({
+        title:`${title.value}`,
+        status:0
+      })
+      xhr.onload =()=>{
+         if (xhr.readyState == 4 && xhr.status == 200) {
+            console.log(JSON.parse(xhr.responseText));
+          } else {
+            console.log(`Error: ${xhr.status}`);
+          }
+      }
+      xhr.send(body)
     }
     </script>
   </body>
