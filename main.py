@@ -47,6 +47,7 @@ def set_data():
         if data[datas['title']]:
             print(data[datas['title']]['status'])
             data[datas['title']]['status']=datas['status']
+            data[datas['title']]['name']=datas['name']
 
     with open('./data.json','w',encoding='utf-8') as f:
         json.dump(data,f,indent=2)

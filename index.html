@@ -19,11 +19,12 @@
       body{
         background-color: rgb(5, 247, 122);
       }
+      
+      .cant{
+        background-color: crimson;
+      }
     </style>
     <h1>電工部蔵書サイト</h1>
-    <input type='input' class="input_title">
-    <input type="button" value="send" class='send_button' onclick="return_books()">
-    <br>
     <input type='input' id="keyword">
     <input type="button" value="search!" onclick="search_book()">
     <button onclick="get_data()">Reset!</button>
@@ -77,7 +78,7 @@
         while(title.length>counter){
           book=books[title[counter]]
           let table_chiled=document.createElement('tr');
-          table_chiled.innerHTML=`<td>${counter}</td><td>${title[counter]}</td><td>${function(){ if(book.status==0){return 'O'}else{return 'X'}}()}</td><td>${book.name}</td><td>${function(){if(book.status==0){return `<button onclick="borrow_books('${title[counter]}')">借りる</button>`}else{return `<button onclick="return_books('${title[counter]}')">返す</button>`}}()}</td>`
+          table_chiled.innerHTML=`<td>${counter}</td><td>${title[counter]}</td><td>${function(){ if(book.status==0){return '<div class="can">〇</div>'}else{return '<div class="cant">X</div>'}}()}</td><td>${book.name}</td><td>${function(){if(book.status==0){return `<button onclick="borrow_books('${title[counter]}')">借りる</button>`}else{return `<button onclick="return_books('${title[counter]}')">返す</button>`}}()}</td>`
           tables.appendChild(table_chiled);
           counter++;
           
@@ -131,10 +132,11 @@
       }
       xhr.send(body)
     }
-    setInterval(() => {
+   /* setInterval(() => {
     get_data();
-  }, 3000);
+  }, 3000);*/
     function borrow_books(title,name='hikari'){
+      name=prompt('借りる人の名前を入力してください')
       console.log(title)
       status=1
       const xhr=new XMLHttpRequest();
@@ -147,9 +149,11 @@
       })
       xhr.onload =()=>{
          if (xhr.readyState == 4 && xhr.status == 200) {
-            console.log(JSON.parse(xhr.responseText));
+          get_data()
+            //console.log(JSON.parse(xhr.responseText));
           } else {
             console.log(`Error: ${xhr.status}`);
+            get_data()
           }
       }
       xhr.send(body)
@@ -164,13 +168,16 @@ function return_books(title){
       xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
       const body =JSON.stringify({
         title:`${title}`,
-        status:0
+        status:0,
+        name:'None'
       })
       xhr.onload =()=>{
          if (xhr.readyState == 4 && xhr.status == 200) {
-            console.log(JSON.parse(xhr.responseText));
+            //console.log(JSON.parse(xhr.responseText));
+            get_data()
           } else {
             console.log(`Error: ${xhr.status}`);
+            get_data()
           }
       }
       xhr.send(body)
