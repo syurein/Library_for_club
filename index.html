@@ -24,9 +24,13 @@
         
       </tbody>
     </table>
-    <button onclick="get_data()">push</button>
+    
     <input type='input' id="input_title">
     <input type="button" value="send" onclick="return_books()">
+    <br>
+    <input type='input' id="keyword">
+    <input type="button" value="search!" onclick="search_book()">
+    <button onclick="get_data()">Reset!</button>
     <script>
     window.onload=()=>{
       get_data();
@@ -113,16 +117,17 @@
       xhr.send(body)
     }
 
-    function borrow_books(title){
+    function borrow_books(title,name='hikari'){
       
       console.log(title)
       status=1
       const xhr=new XMLHttpRequest();
-      xhr.open('POST','./set_data');
+      xhr.open('POST','./set_borrow');
       xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
       const body =JSON.stringify({
         title:`${title}`,
-        status:1
+        status:1,
+        name:name
       })
       xhr.onload =()=>{
          if (xhr.readyState == 4 && xhr.status == 200) {
@@ -132,9 +137,37 @@
           }
       }
       xhr.send(body)
-      
-      
+      get_data()
     }
+
+
+
+    function search_book(){
+      keyword=document.getElementById('keyword');
+      const xhr=new XMLHttpRequest();
+      let data;
+      xhr.open("GET",`/search_data/${keyword.value}`);
+      xhr.send();
+      keyword.value=''
+      xhr.responseType='json';
+      //onloadイベントをキャッチしてる
+      xhr.onload=()=>{
+        if (xhr.readyState==4&&xhr.status==200){
+          data=xhr.response;
+          //console.log(data)
+          add_books(data)
+        }else{
+          console.log(`Error:${xhr.status}`);
+        }
+      }
+    //クライアントの状態が4（DONE）で、ステータスコードが200（成功）であれば、
+    // コンソールにデータが記録されます。そうでない場合は、エラー状況を示すエラーメッセージが表示されます。
+      add_books(data)
+    }
+    
+
+
+
     function return_books(){
       title=document.getElementById('input_title')
       console.log(title.value)
