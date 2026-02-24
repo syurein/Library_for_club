@@ -8,7 +8,7 @@ def get_html():
         text=f.read()
         print(f.read())
     return text
-    
+
 @app.route('/get_data')
 def get_data():
     try:
@@ -37,4 +37,4 @@ def set_data():
     return '{status:"success"}'
 
 if __name__ == "__main__":
-	app.run(debug=True)
+	app.run(debug=True,host='0.0.0.0', port=os.environ["PORT"])
